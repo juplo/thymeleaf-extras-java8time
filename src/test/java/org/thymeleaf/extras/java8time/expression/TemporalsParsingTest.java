@@ -43,7 +43,7 @@ public class TemporalsParsingTest {
         new TemporalParsingUtils(
             Locale.ENGLISH,
             ZoneId.of("Europe/Berlin"),
-            Clock.fixed(ZonedDateTime.of(2015,1,1,0,0,0,0, ZoneOffset.UTC).toInstant(), ZoneOffset.UTC)
+            Clock.systemDefaultZone()
             );
 
     @Test
