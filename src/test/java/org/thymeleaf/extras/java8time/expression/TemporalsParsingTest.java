@@ -74,7 +74,10 @@ public class TemporalsParsingTest {
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:59:59.900 [GMT+01:00]").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:59:59.900UT+01:00").toString());
 
-//        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T14:59:59.900PST").toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T14:59:59.900PST").toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T14:59:59.900 PST").toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T14:59:59.900[PST]").toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T14:59:59.900 [PST]").toString());
 
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:00:00.900+00:00:01").toString());
 //        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:00:59.900+0001").toString());
@@ -176,5 +179,28 @@ public class TemporalsParsingTest {
         assertEquals(ZoneOffset.of("+01:00"), offset);
         assertNotNull(zone);
         assertEquals(ZoneId.of("Z"), zone);
+
+
+        formatter = new DateTimeFormatterBuilder().appendLocalizedOffset(TextStyle.SHORT).toFormatter();
+
+        temporal = formatter.withZone(ZoneOffset.UTC).parse("GMT+1");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("+01:00", ZoneOffset.from(temporal).toString());
+        assertNotNull(offset);
+        assertEquals(ZoneOffset.of("+01:00"), offset);
+        assertNotNull(zone);
+        assertEquals(ZoneId.of("Z"), zone);
+
+
+        formatter = new DateTimeFormatterBuilder().appendZoneText(TextStyle.SHORT).toFormatter();
+
+        temporal = formatter.withZone(ZoneOffset.UTC).parse("PST");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("America/Los_Angeles", ZoneId.from(temporal).toString());
+        assertNull(offset);
+        assertNotNull(zone);
+        assertEquals(ZoneId.of("America/Los_Angeles"), zone);
     }
 }

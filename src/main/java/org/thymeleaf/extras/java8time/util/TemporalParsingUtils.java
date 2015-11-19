@@ -26,6 +26,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
+import java.time.format.TextStyle;
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
@@ -118,7 +119,12 @@ public final class TemporalParsingUtils {
               .optionalStart()
                 .appendLiteral('[')
               .optionalEnd()
+              .optionalStart()
               .appendZoneId()
+              .optionalEnd()
+              .optionalStart()
+              .appendZoneText(TextStyle.SHORT)
+              .optionalEnd()
               .optionalStart()
                 .appendLiteral(']')
               .optionalEnd()
