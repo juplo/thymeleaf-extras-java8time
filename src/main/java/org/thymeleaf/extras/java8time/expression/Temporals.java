@@ -21,6 +21,7 @@ package org.thymeleaf.extras.java8time.expression;
 
 import java.time.ZoneId;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.thymeleaf.extras.java8time.util.TemporalArrayUtils;
 import org.thymeleaf.extras.java8time.util.TemporalCreationUtils;
 import org.thymeleaf.extras.java8time.util.TemporalFormattingUtils;
 import org.thymeleaf.extras.java8time.util.TemporalListUtils;
+import org.thymeleaf.extras.java8time.util.TemporalParsingUtils;
 import org.thymeleaf.extras.java8time.util.TemporalSetUtils;
 import org.thymeleaf.util.Validate;
 
@@ -48,6 +50,7 @@ import org.thymeleaf.util.Validate;
 public final class Temporals {
 
     private final TemporalCreationUtils temporalCreationUtils;
+    private final TemporalParsingUtils temporalParsingUtils;
     private final TemporalFormattingUtils temporalFormattingUtils;
     private final TemporalArrayUtils temporalArrayUtils;
     private final TemporalListUtils temporalListUtils;
@@ -61,6 +64,7 @@ public final class Temporals {
         super();
         Validate.notNull(locale, "Locale cannot be null");
         this.temporalCreationUtils = new TemporalCreationUtils();
+        this.temporalParsingUtils = new TemporalParsingUtils(locale, defaultZoneId);
         this.temporalFormattingUtils = new TemporalFormattingUtils(locale, defaultZoneId);
         this.temporalArrayUtils = new TemporalArrayUtils(locale, defaultZoneId);
         this.temporalListUtils = new TemporalListUtils(locale, defaultZoneId);
@@ -176,6 +180,25 @@ public final class Temporals {
      */
     public Temporal createTodayForTimeZone(final Object zoneId) {
         return temporalCreationUtils.createTodayForTimeZone(zoneId);
+    }
+
+    /**
+     * @param text The text to parse
+     * @return An {@link OffsetTime}, if only time-data is available, a {@link LocalDate} if only date-data is available and a {@link ZonedDateTime} if both is available.
+     * @since 2.1.1
+     */
+    public Temporal parse(String text) {
+        return temporalParsingUtils.parse(text);
+    }
+
+    /**
+     * @param text The text to parse
+     * @param zone The {@link ZoneId} to use for adjusting during parsing
+     * @return An {@link LocalTime}, if only time-data is available, a {@link LocalDate} if only date-data is available and a {@link ZonedDateTime} if both is available.
+     * @since 2.1.1
+     */
+    public Temporal parse(String text, ZoneId zone) {
+        return temporalParsingUtils.parse(text, zone);
     }
 
     /**

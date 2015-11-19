@@ -56,59 +56,102 @@ public final class TemporalObjects {
         Validate.notNull(target, "Target cannot be null");
         Validate.notNull(locale, "Locale cannot be null");
         if (target instanceof LocalDate) {
-            return DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(locale);
+            return formatterForLocalDate(locale);
         } else if (target instanceof LocalDateTime) {
-            return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.MEDIUM).withLocale(locale);
+            return formatterForLocalDateTime(locale);
         } else if (target instanceof ZonedDateTime) {
-            return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withLocale(locale);
+            return formatterForZonedDateTime(locale);
         } else if (target instanceof Instant) {
-            return new DateTimeFormatterBuilder().appendInstant().toFormatter();
+            return formatterForInstant();
         } else if (target instanceof LocalTime) {
-            return DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM).withLocale(locale);
+            return formatterForLocalTime(locale);
         } else if (target instanceof OffsetTime) {
-            // FIXME: localise
-            return new DateTimeFormatterBuilder()
-                .appendValue(ChronoField.HOUR_OF_DAY)
-                .appendLiteral(':')
-                .appendValue(ChronoField.MINUTE_OF_HOUR)
-                .appendLiteral(':')
-                .appendValue(ChronoField.SECOND_OF_MINUTE)
-                .appendLocalizedOffset(TextStyle.FULL)
-                .toFormatter()
-                .withLocale(locale);
+            return formatterForOffsetTime(locale);
         } else if (target instanceof OffsetDateTime) {
-            // FIXME: localise
-            return new DateTimeFormatterBuilder()
-                .appendText(ChronoField.MONTH_OF_YEAR)
-                .appendLiteral(' ')
-                .appendValue(ChronoField.DAY_OF_MONTH)
-                .appendLiteral(", ")
-                .appendValue(ChronoField.YEAR)
-                .appendLiteral(' ')
-                .appendValue(ChronoField.HOUR_OF_DAY)
-                .appendLiteral(':')
-                .appendValue(ChronoField.MINUTE_OF_HOUR)
-                .appendLiteral(':')
-                .appendValue(ChronoField.SECOND_OF_MINUTE)
-                .appendLocalizedOffset(TextStyle.FULL)
-                .toFormatter()
-                .withLocale(locale);
+            return formatterForOffsetDateTime(locale);
         } else if (target instanceof Year) {
-            return new DateTimeFormatterBuilder()
-                .appendValue(ChronoField.YEAR)
-                .toFormatter();
+            return formatterForYear();
         } else if (target instanceof YearMonth) {
-            // FIXME: localise
-            return new DateTimeFormatterBuilder()
-                .appendText(ChronoField.MONTH_OF_YEAR)
-                .appendLiteral(' ')
-                .appendValue(ChronoField.YEAR)
-                .toFormatter()
-                .withLocale(locale);
+            return formatterForYearMonth(locale);
         } else {
             throw new IllegalArgumentException(
                 "Cannot format object of class \"" + target.getClass().getName() + "\" as a date");
         }
+    }
+
+    public static DateTimeFormatter formatterForLocalDate(final Locale locale) {
+        Validate.notNull(locale, "Locale cannot be null");
+        return DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(locale);
+    }
+
+    public static DateTimeFormatter formatterForLocalDateTime(final Locale locale) {
+        Validate.notNull(locale, "Locale cannot be null");
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.MEDIUM).withLocale(locale);
+    }
+
+    public static DateTimeFormatter formatterForZonedDateTime(final Locale locale) {
+        Validate.notNull(locale, "Locale cannot be null");
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withLocale(locale);
+    }
+
+    public static DateTimeFormatter formatterForInstant() {
+        return new DateTimeFormatterBuilder().appendInstant().toFormatter();
+    }
+
+    public static DateTimeFormatter formatterForLocalTime(final Locale locale) {
+        Validate.notNull(locale, "Locale cannot be null");
+        return DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM).withLocale(locale);
+    }
+
+    public static DateTimeFormatter formatterForOffsetTime(final Locale locale) {
+        Validate.notNull(locale, "Locale cannot be null");
+        // FIXME: localise
+        return new DateTimeFormatterBuilder()
+            .appendValue(ChronoField.HOUR_OF_DAY)
+            .appendLiteral(':')
+            .appendValue(ChronoField.MINUTE_OF_HOUR)
+            .appendLiteral(':')
+            .appendValue(ChronoField.SECOND_OF_MINUTE)
+            .appendLocalizedOffset(TextStyle.FULL)
+            .toFormatter()
+            .withLocale(locale);
+    }
+
+    public static DateTimeFormatter formatterForOffsetDateTime(final Locale locale) {
+        Validate.notNull(locale, "Locale cannot be null");
+        // FIXME: localise
+        return new DateTimeFormatterBuilder()
+            .appendText(ChronoField.MONTH_OF_YEAR)
+            .appendLiteral(' ')
+            .appendValue(ChronoField.DAY_OF_MONTH)
+            .appendLiteral(", ")
+            .appendValue(ChronoField.YEAR)
+            .appendLiteral(' ')
+            .appendValue(ChronoField.HOUR_OF_DAY)
+            .appendLiteral(':')
+            .appendValue(ChronoField.MINUTE_OF_HOUR)
+            .appendLiteral(':')
+            .appendValue(ChronoField.SECOND_OF_MINUTE)
+            .appendLocalizedOffset(TextStyle.FULL)
+            .toFormatter()
+            .withLocale(locale);
+    }
+
+    public static DateTimeFormatter formatterForYear() {
+        return new DateTimeFormatterBuilder()
+            .appendValue(ChronoField.YEAR)
+            .toFormatter();
+    }
+
+    public static DateTimeFormatter formatterForYearMonth(final Locale locale) {
+        Validate.notNull(locale, "Locale cannot be null");
+        // FIXME: localise
+        return new DateTimeFormatterBuilder()
+            .appendText(ChronoField.MONTH_OF_YEAR)
+            .appendLiteral(' ')
+            .appendValue(ChronoField.YEAR)
+            .toFormatter()
+            .withLocale(locale);
     }
     
     /**
