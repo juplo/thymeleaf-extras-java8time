@@ -18,8 +18,14 @@ package org.thymeleaf.extras.java8time.expression;
 
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalQueries;
 import java.util.Locale;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 
@@ -38,7 +44,7 @@ public class TemporalsParsingTest {
         assertEquals("2015-01-01", temporals.parse(" 2015-1-1 ").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:59:59.900").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse(" 2015-1-1t23:59:59.9 ").toString());
-        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:59:59.900Z").toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T22:59:59.900Z").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T22:59:59.900+00:00").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T21:59:59.900-01:00").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse(" 2015-1-1t22:59:59.9z ").toString());
@@ -51,7 +57,46 @@ public class TemporalsParsingTest {
         assertEquals("2015-01-01", temporals.parse(" 2015-1-1 ", zone).toString());
         assertEquals("2015-01-01T23:59:59.900Z", temporals.parse("2015-01-01T23:59:59.900", zone).toString());
         assertEquals("2015-01-01T23:59:59.900Z", temporals.parse(" 2015-1-1t23:59:59.9 ", zone).toString());
-        assertEquals("2015-01-01T23:59:59.900Z", temporals.parse("2015-01-01T22:59:59.900+00:00", zone).toString());
-        assertEquals("2015-01-01T23:59:59.900Z", temporals.parse(" 2015-1-1t22:59:59.9z ", zone).toString());
+        assertEquals("2015-01-01T22:59:59.900Z", temporals.parse("2015-01-01T22:59:59.900Z", zone).toString());
+        assertEquals("2015-01-01T22:59:59.900Z", temporals.parse("2015-01-01T22:59:59.900+00:00", zone).toString());
+        assertEquals("2015-01-01T22:59:59.900Z", temporals.parse("2015-01-01T21:59:59.900-01:00", zone).toString());
+        assertEquals("2015-01-01T22:59:59.900Z", temporals.parse(" 2015-1-1t22:59:59.9z ", zone).toString());
+    }
+
+    @Test
+    public void test() {
+        DateTimeFormatter formatter;
+        TemporalAccessor temporal;
+        ZoneOffset offset;
+        ZoneId zone;
+
+        formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+        temporal = formatter.parse("2015-01-01T23:59:59.900+00:00");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("2015-01-01T23:59:59.900Z", ZonedDateTime.from(temporal).toString());
+        assertNotNull(offset);
+        assertEquals(ZoneOffset.UTC, offset);
+        assertNull(zone);
+
+        temporal = formatter.parse("2015-01-01T23:59:59.900+01:00");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("2015-01-01T23:59:59.900+01:00", ZonedDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T22:59:59.900Z", ZonedDateTime.from(temporal).withZoneSameInstant(ZoneOffset.UTC).toString());
+        assertNotNull(offset);
+        assertEquals(ZoneOffset.of("+1"), offset);
+        assertNull(zone);
+
+        temporal = formatter.withZone(ZoneOffset.UTC).parse("2015-01-01T23:59:59.900+01:00");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("2015-01-01T23:59:59.900Z", ZonedDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T23:59:59.900Z", ZonedDateTime.from(temporal).withZoneSameInstant(ZoneOffset.UTC).toString());
+        assertNotNull(offset);
+        assertEquals(ZoneOffset.of("+1"), offset);
+        assertNotNull(zone);
+        assertEquals(ZoneId.of("+1"), offset);
     }
 }
