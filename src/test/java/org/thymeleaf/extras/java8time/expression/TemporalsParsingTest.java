@@ -17,6 +17,8 @@ package org.thymeleaf.extras.java8time.expression;
 
 
 import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -113,6 +115,8 @@ public class TemporalsParsingTest {
     public void test() {
         DateTimeFormatter formatter;
         TemporalAccessor temporal;
+        LocalDateTime localDate;
+        OffsetDateTime date;
         ZoneOffset offset;
         ZoneId zone;
 
@@ -123,6 +127,9 @@ public class TemporalsParsingTest {
         offset = temporal.query(TemporalQueries.offset());
         zone = temporal.query(TemporalQueries.zoneId());
         assertEquals("2015-01-01T23:59:59.900Z", ZonedDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T23:59:59.900Z", ZonedDateTime.from(temporal).withZoneSameInstant(ZoneOffset.UTC).toString());
+        assertEquals("2015-01-01T23:59:59.900Z", OffsetDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T23:59:59.900Z", OffsetDateTime.from(temporal).withOffsetSameInstant(ZoneOffset.UTC).toString());
         assertNotNull(offset);
         assertEquals(ZoneOffset.of("Z"), offset);
         assertEquals(ZoneOffset.of("+0"), offset);
@@ -138,9 +145,26 @@ public class TemporalsParsingTest {
         zone = temporal.query(TemporalQueries.zoneId());
         assertEquals("2015-01-01T23:59:59.900+01:00", ZonedDateTime.from(temporal).toString());
         assertEquals("2015-01-01T22:59:59.900Z", ZonedDateTime.from(temporal).withZoneSameInstant(ZoneOffset.UTC).toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00", OffsetDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T22:59:59.900Z", OffsetDateTime.from(temporal).withOffsetSameInstant(ZoneOffset.UTC).toString());
         assertNotNull(offset);
         assertEquals(ZoneOffset.of("+1"), offset);
         assertNull(zone);
+
+
+        formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+
+        temporal = formatter.parse("2015-01-01T23:59:59.900+01:00[Europe/Berlin]");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", ZonedDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T22:59:59.900Z", ZonedDateTime.from(temporal).withZoneSameInstant(ZoneOffset.UTC).toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00", OffsetDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T22:59:59.900Z", OffsetDateTime.from(temporal).withOffsetSameInstant(ZoneOffset.UTC).toString());
+        assertNotNull(offset);
+        assertEquals(ZoneOffset.of("+1"), offset);
+        assertNotNull(zone);
+        assertEquals(ZoneId.of("Europe/Berlin"), zone);
 
 
         formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneOffset.UTC);
@@ -163,6 +187,7 @@ public class TemporalsParsingTest {
         offset = temporal.query(TemporalQueries.offset());
         zone = temporal.query(TemporalQueries.zoneId());
         assertEquals("GMT", ZoneId.from(temporal).toString());
+        assertEquals("Z", ZoneId.from(temporal).normalized().toString());
         assertNull(offset);
         assertNotNull(zone);
         assertEquals(ZoneId.of("GMT"), zone);
@@ -172,6 +197,9 @@ public class TemporalsParsingTest {
         offset = temporal.query(TemporalQueries.offset());
         zone = temporal.query(TemporalQueries.zoneId());
         assertEquals("Europe/Berlin", ZoneId.from(temporal).toString());
+        assertEquals("Europe/Berlin", ZoneId.from(temporal).getId());
+        assertEquals("Europe/Berlin", ZoneId.from(temporal).normalized().toString());
+        assertEquals("Europe/Berlin", ZoneId.from(temporal).normalized().getId());
         assertNull(offset);
         assertNotNull(zone);
         assertEquals(ZoneId.of("Europe/Berlin"), zone);
@@ -180,6 +208,9 @@ public class TemporalsParsingTest {
         offset = temporal.query(TemporalQueries.offset());
         zone = temporal.query(TemporalQueries.zoneId());
         assertEquals("GMT+01:00", ZoneId.from(temporal).toString());
+        assertEquals("GMT+01:00", ZoneId.from(temporal).getId());
+        assertEquals("+01:00", ZoneId.from(temporal).normalized().toString());
+        assertEquals("+01:00", ZoneId.from(temporal).normalized().getId());
         assertNull(offset);
         assertNotNull(zone);
         assertEquals(ZoneId.of("GMT+01:00"), zone);
@@ -238,5 +269,68 @@ public class TemporalsParsingTest {
           fail("GMT+1 should not be parsable as short styled zone-text");
         }
         catch(DateTimeParseException e) {}
+
+
+        localDate = LocalDateTime.of(2015, 1, 1, 23, 59, 59, 900000000);
+
+        assertEquals("2015-01-01T23:59:59.900", localDate.toString());
+        assertEquals("2015-01-01T23:59:59.900Z", OffsetDateTime.of(localDate, ZoneOffset.of("Z")).toString());
+        assertEquals("2015-01-01T23:59:59.900Z", OffsetDateTime.of(localDate, ZoneOffset.of("Z")).toString());
+
+
+        date = OffsetDateTime.of(2015, 1, 1, 23, 59, 59, 900000000, ZoneOffset.of("Z"));
+
+        assertEquals("2015-01-01T23:59:59.900Z", date.toString());
+        assertEquals("2015-01-01T23:59:59.900Z", ZonedDateTime.from(date).toString());
+        assertEquals("2015-01-02T00:59:59.900+01:00[Europe/Berlin]", ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("Europe/Berlin")).toString());
+        assertEquals("2015-01-02T00:59:59.900+01:00", ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("Europe/Berlin")).toOffsetDateTime().toString());
+
+
+        date = OffsetDateTime.of(2015, 6, 1, 23, 59, 59, 900000000, ZoneOffset.of("Z"));
+
+        assertEquals("2015-06-01T23:59:59.900Z", date.toString());
+        assertEquals("2015-06-01T23:59:59.900Z", ZonedDateTime.from(date).toString());
+        assertEquals("2015-06-02T01:59:59.900+02:00[Europe/Berlin]", ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("Europe/Berlin")).toString());
+        assertEquals("2015-06-02T01:59:59.900+02:00", ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("Europe/Berlin")).toOffsetDateTime().toString());
+
+
+        formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+
+        temporal = formatter.parse("2015-01-01T23:59:59.900+00:00[Europe/Berlin]");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", ZonedDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", ZonedDateTime.parse("2015-01-01T23:59:59.900+01:00[Europe/Berlin]").toString());
+        assertEquals("2015-01-01T22:59:59.900Z", ZonedDateTime.from(temporal).withZoneSameInstant(ZoneOffset.UTC).toString());
+        assertEquals("2015-01-01T23:59:59.900Z", OffsetDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T23:59:59.900Z", OffsetDateTime.from(temporal).withOffsetSameInstant(ZoneOffset.UTC).toString());
+        assertNotNull(offset);
+        assertEquals(ZoneOffset.of("Z"), offset);
+        assertEquals(ZoneOffset.of("+0"), offset);
+        assertEquals(ZoneOffset.of("+00"), offset);
+        assertEquals(ZoneOffset.of("+0000"), offset);
+        assertEquals(ZoneOffset.of("+00:00"), offset);
+        assertEquals(ZoneOffset.of("+000000"), offset);
+        assertEquals(ZoneOffset.of("+00:00:00"), offset);
+        assertNotEquals(offset, ZonedDateTime.from(temporal).query(TemporalQueries.offset()));
+        assertEquals(ZoneOffset.of("+1"), ZonedDateTime.from(temporal).query(TemporalQueries.offset()));
+        assertNotNull(zone);
+        assertEquals(ZoneId.of("Europe/Berlin"), zone);
+
+        temporal = formatter.parse("2015-01-01T23:59:59.900+06:13[Europe/Berlin]");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", ZonedDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", ZonedDateTime.parse("2015-01-01T23:59:59.900+06:13[Europe/Berlin]").toString());
+        assertEquals("2015-01-01T22:59:59.900Z", ZonedDateTime.from(temporal).withZoneSameInstant(ZoneOffset.UTC).toString());
+        assertEquals("2015-01-01T23:59:59.900+06:13", OffsetDateTime.from(temporal).toString());
+        assertEquals("2015-01-01T17:46:59.900Z", OffsetDateTime.from(temporal).withOffsetSameInstant(ZoneOffset.UTC).toString());
+        assertNotNull(offset);
+        assertEquals(ZoneOffset.of("+06:13"), offset);
+        assertNotEquals(offset, ZonedDateTime.from(temporal).query(TemporalQueries.offset()));
+        assertEquals(ZoneOffset.of("+1"), ZonedDateTime.from(temporal).query(TemporalQueries.offset()));
+        assertNotNull(zone);
+        assertEquals(ZoneId.of("Europe/Berlin"), zone);
+        assertEquals(ZoneId.of("Europe/Berlin"), temporal.query(TemporalQueries.zone()));
     }
 }
