@@ -95,7 +95,15 @@ public final class TemporalParsingUtils {
             .optionalEnd()
             .optionalStart()
             .appendOffset("+HH:MM:ss","Z")
+            .optionalEnd()
             .optionalStart()
+            .optionalStart()
+            .appendOffset("+HH:mm","Z")
+            .optionalEnd()
+            .optionalStart()
+            .optionalStart()
+            .appendLiteral(' ')
+            .optionalEnd()
             .appendLiteral('[')
             .appendZoneRegionId()
             .appendLiteral(']')
@@ -119,16 +127,16 @@ public final class TemporalParsingUtils {
         {
           TemporalAccessor temporal = formatter.parse(text);
 
-          ZoneOffset offset = temporal.query(TemporalQueries.offset());
+          ZoneId parsedZone = temporal.query(TemporalQueries.zone());
 
           boolean hasDate = temporal.isSupported(YEAR);
           boolean hasTime = temporal.isSupported(HOUR_OF_DAY);
-          boolean hasOffset = offset != null;
+          boolean hasZone = parsedZone != null;
 
           if (hasDate) {
             if (hasTime)
             {
-              if (hasOffset)
+              if (hasZone)
                 return ZonedDateTime.from(temporal).withZoneSameInstant(zone);
               else
                 return ZonedDateTime.of(LocalDateTime.from(temporal), zone);
