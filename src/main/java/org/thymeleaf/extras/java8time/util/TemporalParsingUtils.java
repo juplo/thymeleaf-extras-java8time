@@ -20,8 +20,10 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.temporal.TemporalQueries;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -149,19 +151,25 @@ public final class TemporalParsingUtils {
         {
           TemporalAccessor temporal = formatter.parse(text);
 
-          ZoneId parsedZone = temporal.query(TemporalQueries.zone());
+          ZoneId parsedZone = temporal.query(TemporalQueries.zoneId());
+          ZoneOffset parsedOffset = temporal.query(TemporalQueries.offset());
 
-          boolean hasDate = temporal.isSupported(YEAR);
           boolean hasTime = temporal.isSupported(HOUR_OF_DAY);
-          boolean hasZone = parsedZone != null;
 
-          if (hasDate) {
+          if (temporal.isSupported(YEAR)) {
             if (hasTime)
             {
-              if (hasZone)
-                return ZonedDateTime.from(temporal).withZoneSameInstant(zone);
+              LocalDateTime date = LocalDateTime.from(temporal);
+
+              if (parsedZone != null)
+                return ZonedDateTime.of(date, parsedZone).withZoneSameInstant(zone);
               else
-                return ZonedDateTime.of(LocalDateTime.from(temporal), zone);
+              {
+                if (parsedOffset != null)
+                  return OffsetDateTime.of(date, parsedOffset).atZoneSameInstant(zone);
+                else
+                  return ZonedDateTime.of(date, zone);
+              }
             }
             else
               return LocalDate.from(temporal);
