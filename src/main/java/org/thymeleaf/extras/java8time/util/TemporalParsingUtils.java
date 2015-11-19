@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.temporal.TemporalQueries;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -54,6 +55,7 @@ public final class TemporalParsingUtils {
   
     private final Locale locale;
     private final ZoneId defaultZoneId;
+    private final Clock clock;
 
     private final DateTimeFormatter formatter;
 
@@ -63,6 +65,7 @@ public final class TemporalParsingUtils {
         Validate.notNull(defaultZoneId, "ZoneId cannot be null");
         this.locale = locale;
         this.defaultZoneId = defaultZoneId;
+        this.clock = clock;
 
         // Create a default formatter for guessing
         formatter = new DateTimeFormatterBuilder()
@@ -106,6 +109,12 @@ public final class TemporalParsingUtils {
               .appendLiteral(' ')
             .optionalEnd()
             .optionalStart()
+              .appendLocalizedOffset(TextStyle.FULL)
+            .optionalEnd()
+            .optionalStart()
+              .appendLocalizedOffset(TextStyle.SHORT)
+            .optionalEnd()
+            .optionalStart()
               .appendOffset("+HH:MM:ss","Z")
             .optionalEnd()
             .optionalStart()
@@ -118,18 +127,14 @@ public final class TemporalParsingUtils {
               .optionalStart()
                 .appendLiteral(' ')
               .optionalEnd()
-              .optionalStart()
-                .appendLiteral('[')
-              .optionalEnd()
+              .appendLiteral('[')
               .optionalStart()
               .appendZoneId()
               .optionalEnd()
               .optionalStart()
               .appendZoneText(TextStyle.SHORT)
               .optionalEnd()
-              .optionalStart()
-                .appendLiteral(']')
-              .optionalEnd()
+              .appendLiteral(']')
             .optionalEnd()
             .toFormatter();
     }
@@ -177,7 +182,17 @@ public final class TemporalParsingUtils {
           else
           {
             if (hasTime)
-              return LocalTime.from(temporal);
+            {
+              LocalTime time = LocalTime.from(temporal);
+
+              if (parsedOffset != null)
+                return OffsetTime.of(time, parsedOffset);
+
+              if (parsedZone != null && !parsedZone.equals(zone))
+                throw new IllegalArgumentException("Ambigous time with different zone and no offset: " + temporal);
+              else
+                return time;
+            }
             else
               throw new IllegalArgumentException("Could not obtain enough information from parsed temporal: " + temporal);
           }
