@@ -64,9 +64,9 @@ public class TemporalsParsingTest {
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T22:59:59.900GMT").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T22:59:59.900[GMT]").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T22:59:59.900 [GMT]").toString());
-//        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:59:59.900GMT+01").toString());
-//        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:59:59.900UT+1").toString());
-//        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T14:59:59.900PST").toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:59:59.900GMT+01:00").toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:59:59.900UT+01:00").toString());
+        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T14:59:59.900PST").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T22:59:59.900[Europe/London]").toString());
 //        assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T22:00:59.900+3600").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T21:59:59.900-0100").toString());
@@ -143,12 +143,12 @@ public class TemporalsParsingTest {
         assertNotNull(zone);
         assertEquals(ZoneId.of("Europe/Berlin"), zone);
 
-        temporal = formatter.withZone(ZoneOffset.UTC).parse("GMT+01");
+        temporal = formatter.withZone(ZoneOffset.UTC).parse("GMT+01:00");
         offset = temporal.query(TemporalQueries.offset());
         zone = temporal.query(TemporalQueries.zoneId());
-        assertEquals("GMT+01", ZoneId.from(temporal).toString());
+        assertEquals("GMT+01:00", ZoneId.from(temporal).toString());
         assertNull(offset);
         assertNotNull(zone);
-        assertEquals(ZoneId.of("GMT+01"), zone);
+        assertEquals(ZoneId.of("GMT+01:00"), zone);
     }
 }
