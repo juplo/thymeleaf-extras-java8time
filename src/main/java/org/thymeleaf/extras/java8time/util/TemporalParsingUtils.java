@@ -67,7 +67,7 @@ public final class TemporalParsingUtils {
             .parseCaseInsensitive()
             .parseLenient()
             .optionalStart()
-            .appendValueReduced(YEAR, 2, 4, LocalDate.of(2015,1,1))
+            .appendValueReduced(YEAR, 2, 4, LocalDate.now(clock))
             .optionalStart()
             .appendLiteral('-')
             .optionalEnd()
