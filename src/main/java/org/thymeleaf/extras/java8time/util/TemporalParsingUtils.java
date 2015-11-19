@@ -21,11 +21,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalQueries;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
+import java.time.temporal.ChronoField;
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
@@ -77,8 +77,14 @@ public final class TemporalParsingUtils {
             .appendValue(DAY_OF_MONTH, 2)
             .optionalEnd()
             .optionalStart()
+            .appendLiteral(' ')
+            .optionalEnd()
+            .optionalStart()
+            .optionalStart()
             .appendLiteral('T')
             .optionalStart()
+            .appendLiteral(' ')
+            .optionalEnd()
             .optionalEnd()
             .appendValue(HOUR_OF_DAY, 2)
             .optionalStart()
@@ -94,19 +100,29 @@ public final class TemporalParsingUtils {
             .optionalEnd()
             .optionalEnd()
             .optionalStart()
+            .appendLiteral(' ')
+            .optionalEnd()
+            .optionalStart()
             .appendOffset("+HH:MM:ss","Z")
             .optionalEnd()
             .optionalStart()
             .optionalStart()
-            .appendOffset("+HH:mm","Z")
+            .appendPattern("X")
+            .optionalEnd()
+            .optionalStart()
+            .appendPattern("XXXX")
             .optionalEnd()
             .optionalStart()
             .optionalStart()
             .appendLiteral(' ')
             .optionalEnd()
+            .optionalStart()
             .appendLiteral('[')
+            .optionalEnd()
             .appendZoneRegionId()
+            .optionalStart()
             .appendLiteral(']')
+            .optionalEnd()
             .toFormatter();
     }
 
