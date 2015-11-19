@@ -22,13 +22,16 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalQueries;
 import java.util.Locale;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.thymeleaf.extras.java8time.util.TemporalParsingUtils;
 
@@ -121,7 +124,13 @@ public class TemporalsParsingTest {
         zone = temporal.query(TemporalQueries.zoneId());
         assertEquals("2015-01-01T23:59:59.900Z", ZonedDateTime.from(temporal).toString());
         assertNotNull(offset);
-        assertEquals(ZoneOffset.UTC, offset);
+        assertEquals(ZoneOffset.of("Z"), offset);
+        assertEquals(ZoneOffset.of("+0"), offset);
+        assertEquals(ZoneOffset.of("+00"), offset);
+        assertEquals(ZoneOffset.of("+0000"), offset);
+        assertEquals(ZoneOffset.of("+00:00"), offset);
+        assertEquals(ZoneOffset.of("+000000"), offset);
+        assertEquals(ZoneOffset.of("+00:00:00"), offset);
         assertNull(zone);
 
         temporal = formatter.parse("2015-01-01T23:59:59.900+01:00");
@@ -145,6 +154,7 @@ public class TemporalsParsingTest {
         assertEquals(ZoneOffset.of("+1"), offset);
         assertNotNull(zone);
         assertEquals(ZoneId.of("Z"), zone);
+        assertNotEquals(ZoneId.of("+1"), zone);
 
 
         formatter = new DateTimeFormatterBuilder().appendZoneId().toFormatter();
@@ -156,6 +166,7 @@ public class TemporalsParsingTest {
         assertNull(offset);
         assertNotNull(zone);
         assertEquals(ZoneId.of("GMT"), zone);
+        assertEquals(ZoneId.of("GMT+00:00"), zone);
 
         temporal = formatter.parse("Europe/Berlin");
         offset = temporal.query(TemporalQueries.offset());
@@ -172,6 +183,7 @@ public class TemporalsParsingTest {
         assertNull(offset);
         assertNotNull(zone);
         assertEquals(ZoneId.of("GMT+01:00"), zone);
+        assertNotEquals(ZoneId.of("GMT"), zone);
 
 
         formatter = new DateTimeFormatterBuilder().appendLocalizedOffset(TextStyle.SHORT).toFormatter();
@@ -182,6 +194,15 @@ public class TemporalsParsingTest {
         assertEquals("+01:00", ZoneOffset.from(temporal).toString());
         assertNotNull(offset);
         assertEquals(ZoneOffset.of("+01:00"), offset);
+        assertNull(zone);
+
+        temporal = formatter.parse("GMT");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("Z", ZoneOffset.from(temporal).toString());
+        assertNotNull(offset);
+        assertEquals(ZoneOffset.of("+00:00"), offset);
+        assertEquals(ZoneOffset.of("Z"), offset);
         assertNull(zone);
 
         temporal = formatter.parse("GMT+1");
@@ -202,5 +223,20 @@ public class TemporalsParsingTest {
         assertNull(offset);
         assertNotNull(zone);
         assertEquals(ZoneId.of("America/Los_Angeles"), zone);
+
+        temporal = formatter.parse("GMT");
+        offset = temporal.query(TemporalQueries.offset());
+        zone = temporal.query(TemporalQueries.zoneId());
+        assertEquals("GMT", ZoneId.from(temporal).toString());
+        assertNull(offset);
+        assertNotNull(zone);
+        assertEquals(ZoneId.of("GMT"), zone);
+
+        try
+        {
+          formatter.parse("GMT+1");
+          fail("GMT+1 should not be parsable as short styled zone-text");
+        }
+        catch(DateTimeParseException e) {}
     }
 }
