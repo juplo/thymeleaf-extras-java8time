@@ -19,6 +19,7 @@
  */
 package org.thymeleaf.extras.java8time.expression;
 
+import java.time.Clock;
 import java.time.ZoneId;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
@@ -64,7 +65,7 @@ public final class Temporals {
         super();
         Validate.notNull(locale, "Locale cannot be null");
         this.temporalCreationUtils = new TemporalCreationUtils();
-        this.temporalParsingUtils = new TemporalParsingUtils(locale, defaultZoneId);
+        this.temporalParsingUtils = new TemporalParsingUtils(locale, defaultZoneId, Clock.system(defaultZoneId));
         this.temporalFormattingUtils = new TemporalFormattingUtils(locale, defaultZoneId);
         this.temporalArrayUtils = new TemporalArrayUtils(locale, defaultZoneId);
         this.temporalListUtils = new TemporalListUtils(locale, defaultZoneId);

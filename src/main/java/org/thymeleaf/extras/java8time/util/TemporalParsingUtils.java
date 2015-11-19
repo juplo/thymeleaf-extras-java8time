@@ -16,6 +16,7 @@
 package org.thymeleaf.extras.java8time.util;
 
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -55,7 +56,7 @@ public final class TemporalParsingUtils {
     private final DateTimeFormatter formatter;
 
 
-    public TemporalParsingUtils(final Locale locale, final ZoneId defaultZoneId) {
+    public TemporalParsingUtils(final Locale locale, final ZoneId defaultZoneId, Clock clock) {
         Validate.notNull(locale, "Locale cannot be null");
         Validate.notNull(defaultZoneId, "ZoneId cannot be null");
         this.locale = locale;
@@ -66,7 +67,7 @@ public final class TemporalParsingUtils {
             .parseCaseInsensitive()
             .parseLenient()
             .optionalStart()
-            .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+            .appendValueReduced(YEAR, 2, 4, LocalDate.from(clock.instant()))
             .optionalStart()
             .appendLiteral('-')
             .optionalEnd()

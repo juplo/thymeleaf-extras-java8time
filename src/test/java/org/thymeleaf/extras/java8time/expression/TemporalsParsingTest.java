@@ -16,6 +16,8 @@
 package org.thymeleaf.extras.java8time.expression;
 
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -27,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import org.junit.Test;
+import org.thymeleaf.extras.java8time.util.TemporalParsingUtils;
 
 
 
@@ -36,12 +39,18 @@ import org.junit.Test;
  */
 public class TemporalsParsingTest {
     
-    private final Temporals temporals = new Temporals(Locale.ENGLISH, ZoneId.of("Europe/Berlin"));
+    private final TemporalParsingUtils temporals =
+        new TemporalParsingUtils(
+            Locale.ENGLISH,
+            ZoneId.of("Europe/Berlin"),
+            Clock.fixed(ZonedDateTime.of(2015,1,1,0,0,0,0, ZoneOffset.UTC).toInstant(), ZoneOffset.UTC)
+            );
 
     @Test
     public void testParse() {
         assertEquals("2015-01-01", temporals.parse("2015-01-01").toString());
         assertEquals("2015-01-01", temporals.parse(" 2015-1-1 ").toString());
+        assertEquals("2015-01-01", temporals.parse(" 15-1-1 ").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T23:59:59.900").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse(" 2015-1-1t23:59:59.9 ").toString());
         assertEquals("2015-01-01T23:59:59.900+01:00[Europe/Berlin]", temporals.parse("2015-01-01T22:59:59.900Z").toString());
