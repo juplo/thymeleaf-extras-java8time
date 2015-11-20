@@ -109,9 +109,6 @@ public final class TemporalParsingUtils {
               .appendLiteral(' ')
             .optionalEnd()
             .optionalStart()
-              .appendLocalizedOffset(TextStyle.FULL)
-            .optionalEnd()
-            .optionalStart()
               .appendLocalizedOffset(TextStyle.SHORT)
             .optionalEnd()
             .toFormatter();
