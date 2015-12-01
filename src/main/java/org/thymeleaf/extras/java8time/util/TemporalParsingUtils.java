@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.temporal.TemporalQueries;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -177,7 +178,16 @@ public final class TemporalParsingUtils {
           else
           {
             if (hasTime)
-              return LocalTime.from(temporal);
+            {
+              LocalTime time = LocalTime.from(temporal);
+
+              if (parsedZone != null)
+                return OffsetTime.of(time, parsedZone.);
+              if (parsedOffset != null)
+                return OffsetTime.of(time, ZoneOffset.UTC).with(parsedOffset);
+              else
+                return time;
+            }
             else
               throw new IllegalArgumentException("Could not obtain enough information from parsed temporal: " + temporal);
           }
